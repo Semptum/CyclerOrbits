@@ -39,7 +39,7 @@ sun=position_func(0,0,0,1)
 
 planets=[sun,earth,mars]
 
-init=np.concatenate((earth[0](0)+np.array([0.1,0]),(earth[0](1)-earth[0](0))/STEP*10))
+init=np.concatenate((earth[0](0)+np.array([-0.1,0]),(earth[0](STEP)-earth[0](0))*20))
 
 def acc(phasevec,t):
     pos=phasevec[:2]
