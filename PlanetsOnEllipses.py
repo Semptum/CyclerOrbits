@@ -11,7 +11,7 @@ import scipy.integrate as integ
 
 #Constants definition
 G=4*np.pi**2
-SIMULATION_LENGTH=2
+SIMULATION_LENGTH=10
 STEP=1/365
 TIME=np.arange(0,SIMULATION_LENGTH,STEP)
 n=TIME.shape[0]
@@ -39,16 +39,23 @@ sun=position_func(0,0,0,1)
 
 planets=[sun,earth,mars]
 
-init=np.array([earth[0](0)+np.array([-0.1,0]),(earth[0](1)-earth[0](0))/STEP]).reshape((4,))
+init=np.concatenate((earth[0](0)+np.array([0.1,0]),(earth[0](1)-earth[0](0))/STEP*10))
 
 def acc(phasevec,t):
-    pos=phasevec[0]
+    pos=phasevec[:2]
     FORCE=np.zeros(2)
     for p in planets:
         r=(p[0](t)-pos)
         D=(r.dot(r))**0.5
         assert D>0.01
         FORCE+=G*p[1]*r/D**3
-    return np.array([phasevec[1],FORCE*STEP]).reshape((4,))
+    return np.concatenate((phasevec[2:],FORCE*STEP))
 
-integ.odeint(acc,init,TIME)
+R=integ.odeint(acc,init,TIME)
+
+x,y=R.T[:2]
+plt.plot(x,y)
+for p in planets:
+    x,y=p[0](TIME)
+    plt.plot(x,y)
+    plt.plot(x[-1],y[-1],"o")
