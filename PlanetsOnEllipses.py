@@ -21,7 +21,6 @@ eM=3.003e-6
 #Durations are in AU
 
 
-print('bite')
 
 
 def position_func(apogee,perigee,argument,mass,phase=0):
