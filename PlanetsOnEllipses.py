@@ -15,15 +15,13 @@ SIMULATION_LENGTH=2
 STEP=1/365
 TIME=np.arange(0,SIMULATION_LENGTH,STEP)
 n=TIME.shape[0]
-R=np.zeros((n,2))
-PR=np.zeros((n,2))
 eM=3.003e-6
 #Masses are in solar masses 1 sM= 2e30 kg, so 1 kg = 0.5e-30 sM
 #Lengths are in AU
 #Durations are in AU
 
 
-def position_func(apogee,perigee,argument,mass,phase=0,):
+def position_func(apogee,perigee,argument,mass,phase=0):
     if apogee*perigee==0:
         return (lambda t:[np.zeros_like(t),np.zeros_like(t)]),mass
     c=(apogee-perigee)/2
@@ -41,29 +39,16 @@ sun=position_func(0,0,0,1)
 
 planets=[sun,earth,mars]
 
-init=earth[0](0)+np.array([-0.1,0])
-pinit=(earth[0](1)-earth[0](0))/STEP
+init=np.array([earth[0](0)+np.array([-0.1,0]),(earth[0](1)-earth[0](0))/STEP]).reshape((4,))
 
-def acc(planets,t,pos):
+def acc(phasevec,t):
+    pos=phasevec[0]
     FORCE=np.zeros(2)
     for p in planets:
         r=(p[0](t)-pos)
         D=(r.dot(r))**0.5
         assert D>0.01
         FORCE+=G*p[1]*r/D**3
-    return FORCE*STEP
+    return np.array([phasevec[1],FORCE*STEP]).reshape((4,))
 
-for i in range(1,len(TIME)):
-    t=i*STEP
-    R[i]=R[i-1]+PR[i-1]
-    PR[i]=PR[i-1]+acc(planets,t,R[i])*STEP
-R=R.T
-
-for k in planets:
-    x,y=k[0](TIME)
-    plt.plot(x,y)
-    plt.plot(x[-1],y[-1],"o")
-x,y=R
-plt.plot(x,y)
-plt.plot(0,0,"x")
-plt.plot(x[-1],y[-1],"o")
+integ.odeint(acc,init,TIME)
