@@ -21,6 +21,9 @@ eM=3.003e-6
 #Durations are in AU
 
 
+print('bite')
+
+
 def position_func(apogee,perigee,argument,mass,phase=0):
     if apogee*perigee==0:
         return (lambda t:[np.zeros_like(t),np.zeros_like(t)]),mass
