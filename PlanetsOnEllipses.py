@@ -11,7 +11,7 @@ import scipy.integrate as integ
 
 #Constants definition
 G=4*np.pi**2
-SIMULATION_LENGTH=10
+SIMULATION_LENGTH=1
 STEP=1/365
 TIME=np.arange(0,SIMULATION_LENGTH,STEP)
 eM=3.003e-6
@@ -23,7 +23,7 @@ eM=3.003e-6
 
 def position_func(apogee,perigee,argument,phase=0):
     if apogee*perigee==0:
-        return lambda t:[np.zeros_like(t),np.zeros_like(t),np.zeros_like(t),np.zeros_like(t)]
+        return lambda t:np.array([np.zeros_like(t),np.zeros_like(t),np.zeros_like(t),np.zeros_like(t)])
     c=(apogee-perigee)/2
     a=(perigee+apogee)/2
     e=c/a
@@ -31,7 +31,7 @@ def position_func(apogee,perigee,argument,phase=0):
     T=a**(2/3)
     angle=np.pi/180
     rot=np.array([[np.cos(angle),-np.sin(angle)],[np.sin(angle),np.cos(angle)]])
-    return lambda t:np.concatenate((rot.dot(np.array([a*np.cos(2*np.pi*t/T+phase),b*np.sin(2*np.pi*t/T+phase)])),np.zeros(2)))
+    return lambda t:np.concatenate((rot.dot(np.array([a*np.cos(2*np.pi*t/T+phase),b*np.sin(2*np.pi*t/T+phase)])),np.expand_dims(np.zeros_like(t),0),np.expand_dims(np.zeros_like(t),0)))
 
 earth=position_func(1.0167,0.98329,288.1)
 mars=position_func(1.666,1.3814,286.5)
@@ -46,8 +46,9 @@ def acceleration(phasevec,t):
         diff=phasevec-phaseplan
         D=diff[:2]
         R=(D.dot(D))**(3/2)
-        dphasevec[2:]+=G*PLANETS[p]*D/R
+        dphasevec[2:]-=G*PLANETS[p]*D/R
     dphasevec[:2]=phasevec[2:]
+    print(dphasevec)
     return dphasevec
 
 def plot(phase):
@@ -55,9 +56,10 @@ def plot(phase):
     plt.plot(x,y)
     plt.plot(x[-1],y[-1],"x")
     for p in PLANETS.keys():
-        p(TIME)
-        plt.plot()
+        x,y=p(TIME)[:2]
+        plt.plot(x,y)
 
 init=earth(0)*(1+0.2*np.random.random())
+init[2:]=(earth(STEP)-earth(0))[:2]/STEP
 
 phase=integ.odeint(acceleration,init,TIME)
