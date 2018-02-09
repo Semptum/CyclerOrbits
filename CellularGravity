@@ -29,13 +29,16 @@ def planet(coord,size,mass):
     a=1/(1+(temp[0]**2+temp[1]**2)/size**2)
     result[np.where(temp[0]**2+temp[1]**2<size**2)]=mass
     return result*a
-DENSITY+=planet((500,300),20,1000)
-DENSITY+=planet((500,600),20,1000)
+DENSITY+=planet((400,400),20,1000)
+DENSITY+=planet((450,600),20,1000)
+DENSITY+=planet((550,400),20,1000)
+
 
 
 FIELD=np.abs(np.fft.ifft2(G*np.fft.fft2(DENSITY)/K2))
 FIELD[np.where(DENSITY==1)]=0
 FORCE=np.array(np.gradient(FIELD))
+DENSITY=DENSITY.T
 
 coord=np.array([500,600,0.3,0.3])
 
