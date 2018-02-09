@@ -14,11 +14,12 @@ import scipy.integrate as integ
 G=4*np.pi**2
 
 N=1000
-TMAX=10000
+TMAX=125
 DENSITY=np.zeros((N,N))
 TIME=np.arange(0,TMAX,1)
 k1=np.round(np.linspace(-N//2,N//2,N))
 K1=np.meshgrid(k1,k1)
+
 K2=K1[0]**2+K1[1]**2
 #K2+=1/(1+K2)
 
@@ -34,18 +35,20 @@ DENSITY+=planet((450,600),20,1000)
 DENSITY+=planet((550,400),20,1000)
 
 
-
-FIELD=np.abs(np.fft.ifft2(G*np.fft.fft2(DENSITY)/K2))
-FIELD[np.where(DENSITY==1)]=0
+FOUR=np.fft.ifftshift(np.fft.fftshift(G*np.fft.fft2(DENSITY))/K2)
+FIELD=-np.real(np.fft.ifft2(FOUR))
+#FIELD[np.where(DENSITY>0.5)]=0
 FORCE=np.array(np.gradient(FIELD))
 DENSITY=DENSITY.T
 
-coord=np.array([500,600,0.3,0.3])
+coord=np.array([800,800,0,-0.2])
 
 def acc(coord,t):
     x,y=np.round(coord[:2])
-    a=FORCE[:,int(x),int(y)]
+    if DENSITY[x,y]>0.5:
+        return np.array([0,0,0,0])
+    a=-FORCE[:,x,y]
     return np.concatenate([coord[2:],a])
 
-R=integ.odeint(acc,coord,TIME)
+R=integ.odeint(acc,coord,TIME,printmessg=True)
 x,y=R.T[:2]
