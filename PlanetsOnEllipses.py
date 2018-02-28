@@ -35,10 +35,9 @@ def position_func(apogee,perigee,argument,phase=0):
 earth=position_func(1.0167,0.98329,288.1)
 mars=position_func(1.666,1.3814,286.5)
 sun=position_func(0,0,0,1)
-weirdo=position_func(2,0.5,0)
 
 
-PLANETS={sun:1,mars:0.107*eM,earth:eM,weirdo:0.1}
+PLANETS={sun:1,mars:0.107*eM,earth:eM}
 
 def acceleration(phasevec,t):
     dphasevec=np.zeros(4)

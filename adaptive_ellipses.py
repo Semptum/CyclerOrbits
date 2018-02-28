@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created during a boring boring session of projnum
+Created on Wed Feb 28 14:45:58 2018
 
-@author: henry
+@author: andre
 """
 
 import numpy as np
@@ -40,29 +40,3 @@ def RK4(x0,v0,equa_diff,time,n=0):
             V.append(result[0][-1])
     return np.array(X),np.array(V)
 
-plt.plot(RK4(x0,v0,equa_diff,time)[0])
-
-
-def testRK(a,b):
-    H=[]
-    err=[]
-    eq=lambda x,v,t: -x
-    for i in range(a,b+1): 
-    
-        h=10**(-i)
-        time=np.linspace(0,10,10/h+1)
-        X=RK4(1,0,eq,time)
-        Y=[np.cos(t) for t in time]
-        erreur= max(abs(X[t]-Y[t]) for t in range(len(X)))
-    
-    
-        H.append(h)
-        err.append(erreur)
-    
-    plt.loglog(H,err)
-
-
-
-
-
-    
