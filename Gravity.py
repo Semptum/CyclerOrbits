@@ -18,6 +18,7 @@ G=4*np.pi**2
 eM=3.003e-6
 km=1/(1.496e+8)
 rearth=6400*km
+sun=position_func(0,0,0,1)
 #Masses are in solar masses 1 sM= 2e30 kg, so 1 kg = 0.5e-30 sM
 #Lengths are in AU
 #Each celestial body has two invariant parameters: mass (in solar masses) and deathradius (in AU). When the spaceship enters the
@@ -120,14 +121,14 @@ def initial(t0,leo=200):
     R=rearth+leo*km
     v=(G*eM/R)**0.5
     period=2*np.pi/(G*eM/R**3)**2
-    dt=t0%period
+    dt=t0%period*STEP
     init=np.concatenate((earth(t0),(earth(STEP)-earth(0))/STEP))
     init[:2]+=R*np.array([np.cos(dt),np.sin(dt)])
     init[2:]+=v*np.array([-np.sin(dt),np.cos(dt)])
     print((R/km,v/km/(365*24*3600)))
     return init
 
-def testing():i
+def testing():
     """
     A simple testing function which creates the PLANETS dict and places the spaceship near the earth with its speed
     """
