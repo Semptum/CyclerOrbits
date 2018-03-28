@@ -18,7 +18,7 @@ G=4*np.pi**2
 eM=3.003e-6
 km=1/(1.496e+8)
 rearth=6400*km
-sun=position_func(0,0,0,1)
+#moon=position_func()
 #Masses are in solar masses 1 sM= 2e30 kg, so 1 kg = 0.5e-30 sM
 #Lengths are in AU
 #Each celestial body has two invariant parameters: mass (in solar masses) and deathradius (in AU). When the spaceship enters the
@@ -49,6 +49,13 @@ def position_func(apogee,perigee,argument,phase=0,refbody=lambda t:np.zeros(np.s
     rot=np.array([[np.cos(angle),-np.sin(angle)],[np.sin(angle),np.cos(angle)]])
     return lambda t:rot.dot(np.array([a*np.cos(2*np.pi*t/T+phase)-a+perigee,#
                                       b*np.sin(2*np.pi*t/T+phase)])).T+refbody(t)
+
+sun=position_func(0,0,0,1)
+earth=position_func(1.0167,0.98329,288.1)
+mars=position_func(1.666,1.3814,286.5)
+PLANETS={sun:[1,0.05],mars:[0.107*eM,50*km],earth:[eM,0]}
+STEP=1/365
+TIME=np.arange(0,10,STEP)
 
 def closest_dist(phasevect,PLANETS,t):
     R=10 #pk pas
@@ -128,19 +135,24 @@ def initial(t0,leo=200):
     print((R/km,v/km/(365*24*3600)))
     return init
 
-def testing():
-    """
-    A simple testing function which creates the PLANETS dict and places the spaceship near the earth with its speed
-    """
-    STEP=1/365
-    TIME=np.arange(0,10,STEP)
-    earth=position_func(1.0167,0.98329,288.1)
-    mars=position_func(1.666,1.3814,286.5)
-    sun=position_func(0,0,0,1)
-    PLANETS={sun:[1,0.05],mars:[0.107*eM,50*km],earth:[eM,0]}
-    init=np.concatenate((earth(0),np.array([0,0])))*(1+0.2*np.random.random())
-    init[2:]=(earth(STEP)-earth(0))/STEP
-    #phase=integ.odeint(acceleration,init,TIME,args=(PLANETS,))
-    #plot(phase,PLANETS,TIME,sun)
-    return init,PLANETS,TIME
 
+
+def evolution_given_adn(day,time,corrections):
+    try:
+        deltai=10
+        dv0=corrections[0]
+        init=initial(day+time/24,0)
+        TMAX=10
+        DAY=1/365
+        TIME=np.arange(0,TMAX,DAY)
+        PHASE=np.zeros((TIME.shape[0],4))
+        PHASE[0]=init
+        for i in range(corrections.shape[0]//2):
+            corr=corrections[i],corrections[i+corrections.shape[0]//2]
+            time=TIME[deltai*i:(i+1)*deltai+1]
+            init=PHASE[i*deltai]
+            init[2:]+=corr
+            PHASE[deltai*i:(i+1)*deltai+1]=RK4(init,acceleration,time,PLANETS)
+        return PHASE
+    except:
+        return None
