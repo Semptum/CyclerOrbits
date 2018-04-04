@@ -137,7 +137,10 @@ def initial(t0,leo=200):
 
 
 
-def evolution_given_adn(day,time,corrections):
+def evolution_given_adn(adn):
+    daytime,corrections=adn[0],adn[1:]
+    day=int(daytime)
+    time=(daytime-day)*24
     try:
         deltai=10
         dv0=corrections[0]
